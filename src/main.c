@@ -13,19 +13,37 @@ int studentCount = 0;
 
 int roomOccupied[MAX_ROOMS];
 
+int findStudent(int roll) {
+    for (int i = 0; i < studentCount; i++) {
+        if (rollNo[i] == roll) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void addStudent(void) {
+    int roll;
+
     if (studentCount >= MAX_STUDENTS) {
         printf("Cannot add more students, hostel is full.\n");
         return;
     }
 
     printf("Enter Roll No: ");
-    scanf("%d", &rollNo[studentCount]);
+    scanf("%d", &roll);
+
+    if (findStudent(roll) != -1) {
+        printf("A student with this Roll No already exists.\n");
+        return;
+    }
+
+    rollNo[studentCount] = roll;
 
     printf("Enter Name: ");
     scanf("%s", name[studentCount]);
 
-    roomNo[studentCount] = 0;      // not allocated yet
+    roomNo[studentCount] = 0;
     feeDue[studentCount] = 0;
     feePaid[studentCount] = 0;
 
@@ -46,7 +64,7 @@ void viewAllStudents(void) {
 }
 
 void allocateRoom(void) {
-    int roll, room, index = -1;
+    int roll, room, index;
 
     if (studentCount == 0) {
         printf("No students found. Add a student first.\n");
@@ -56,11 +74,7 @@ void allocateRoom(void) {
     printf("Enter Roll No of student: ");
     scanf("%d", &roll);
 
-    for (int i = 0; i < studentCount; i++) {
-        if (rollNo[i] == roll) {
-            index = i;
-        }
-    }
+    index = findStudent(roll);
 
     if (index == -1) {
         printf("Student not found.\n");
@@ -100,6 +114,72 @@ void viewOccupancyStatus(void) {
     }
 }
 
+void searchStudent(void) {
+    int roll, index;
+
+    if (studentCount == 0) {
+        printf("No students found.\n");
+        return;
+    }
+
+    printf("Enter Roll No to search: ");
+    scanf("%d", &roll);
+
+    index = findStudent(roll);
+
+    if (index == -1) {
+        printf("Student not found.\n");
+        return;
+    }
+
+    printf("\n%-10s %-20s %-10s\n", "Roll No", "Name", "Room No");
+    printf("%-10d %-20s %-10d\n", rollNo[index], name[index], roomNo[index]);
+}
+
+void updateStudent(void) {
+    int roll, index, option, newRoll;
+
+    if (studentCount == 0) {
+        printf("No students found.\n");
+        return;
+    }
+
+    printf("Enter Roll No of student to update: ");
+    scanf("%d", &roll);
+
+    index = findStudent(roll);
+
+    if (index == -1) {
+        printf("Student not found.\n");
+        return;
+    }
+
+    printf("1. Update Name\n");
+    printf("2. Update Roll No\n");
+    printf("Enter choice: ");
+    scanf("%d", &option);
+
+    switch (option) {
+        case 1:
+            printf("Enter new Name: ");
+            scanf("%s", name[index]);
+            printf("Name updated.\n");
+            break;
+        case 2:
+            printf("Enter new Roll No: ");
+            scanf("%d", &newRoll);
+            if (findStudent(newRoll) != -1) {
+                printf("A student with this Roll No already exists.\n");
+            } else {
+                rollNo[index] = newRoll;
+                printf("Roll No updated.\n");
+            }
+            break;
+        default:
+            printf("Invalid choice.\n");
+    }
+}
+
 int main(void) {
     int choice;
 
@@ -126,10 +206,10 @@ int main(void) {
                 allocateRoom();
                 break;
             case 3:
-                printf("Search Student selected.\n");
+                searchStudent();
                 break;
             case 4:
-                printf("Update Student Record selected.\n");
+                updateStudent();
                 break;
             case 5:
                 printf("Delete Student Record selected.\n");
