@@ -180,6 +180,109 @@ void updateStudent(void) {
     }
 }
 
+void deleteStudent(void) {
+    int roll, index;
+
+    if (studentCount == 0) {
+        printf("No students found.\n");
+        return;
+    }
+
+    printf("Enter Roll No of student to delete: ");
+    scanf("%d", &roll);
+
+    index = findStudent(roll);
+
+    if (index == -1) {
+        printf("Student not found.\n");
+        return;
+    }
+
+    if (roomNo[index] != 0) {
+        roomOccupied[roomNo[index] - 1]--;
+    }
+
+    for (int i = index; i < studentCount - 1; i++) {
+        rollNo[i] = rollNo[i + 1];
+        roomNo[i] = roomNo[i + 1];
+        feeDue[i] = feeDue[i + 1];
+        feePaid[i] = feePaid[i + 1];
+        for (int k = 0; k < 50; k++) {
+            name[i][k] = name[i + 1][k];
+        }
+    }
+
+    studentCount--;
+    printf("Student deleted.\n");
+}
+
+void feeTracking(void) {
+    int option, roll, index;
+    float amount;
+
+    if (studentCount == 0) {
+        printf("No students found.\n");
+        return;
+    }
+
+    printf("1. Set Fee Amount\n");
+    printf("2. Mark Fee Paid\n");
+    printf("3. View Fee Status\n");
+    printf("Enter choice: ");
+    scanf("%d", &option);
+
+    switch (option) {
+        case 1:
+            printf("Enter Roll No: ");
+            scanf("%d", &roll);
+            index = findStudent(roll);
+            if (index == -1) {
+                printf("Student not found.\n");
+            } else {
+                printf("Enter fee amount: ");
+                scanf("%f", &amount);
+                if (amount <= 0) {
+                    printf("Invalid amount.\n");
+                } else {
+                    feeDue[index] = amount;
+                    feePaid[index] = 0;
+                    printf("Fee of %.2f set for %s.\n", amount, name[index]);
+                }
+            }
+            break;
+        case 2:
+            printf("Enter Roll No: ");
+            scanf("%d", &roll);
+            index = findStudent(roll);
+            if (index == -1) {
+                printf("Student not found.\n");
+            } else if (feeDue[index] == 0) {
+                printf("No fee has been set for this student.\n");
+            } else if (feePaid[index] == 1) {
+                printf("Fee is already paid.\n");
+            } else {
+                feePaid[index] = 1;
+                printf("Fee marked as paid for %s.\n", name[index]);
+            }
+            break;
+        case 3:
+            printf("\n%-10s %-20s %-12s %-10s\n", "Roll No", "Name", "Fee", "Status");
+            for (int i = 0; i < studentCount; i++) {
+                printf("%-10d %-20s %-12.2f ", rollNo[i], name[i], feeDue[i]);
+                if (feeDue[i] == 0) {
+                    printf("No fee\n");
+                } else if (feePaid[i] == 1) {
+                    printf("Paid\n");
+                } else {
+                    printf("Unpaid\n");
+                }
+            }
+            break;
+        default:
+            printf("Invalid choice.\n");
+    }
+}
+
 int main(void) {
     int choice;
 
@@ -212,7 +315,7 @@ int main(void) {
                 updateStudent();
                 break;
             case 5:
-                printf("Delete Student Record selected.\n");
+                deleteStudent();
                 break;
             case 6:
                 viewAllStudents();
@@ -221,7 +324,7 @@ int main(void) {
                 viewOccupancyStatus();
                 break;
             case 8:
-                printf("Fee Tracking selected.\n");
+                feeTracking();
                 break;
             case 9:
                 printf("Generate Report selected.\n");
